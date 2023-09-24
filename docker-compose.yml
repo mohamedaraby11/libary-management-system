@@ -1,0 +1,19 @@
+version: '1'
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: postgres
+    ports:
+      - "8080:8080"
+  app:
+    build:
+      context: .
+    environment:
+      DATABASE_URL: postgres://postgres:admin@postgres/library_db
+    ports:
+      - "3000:3000" 
+    depends_on:
+      - postgres    

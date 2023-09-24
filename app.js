@@ -96,7 +96,7 @@ app.get('/books/search', async (req, res) => {
     }
 });
 
-
+////////////////////////////////////////////////////////////////////////
 //Borrowers Endpoints 
 
 // List all borrowers
@@ -165,6 +165,85 @@ app.delete('/borrowers/:id', async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 });
+
+//////////////////////////////////////////////////////////////////////////////////
+// Borrowing process 
+
+
+// Check out a book
+app.post('/borrowings', async (req, res) => {
+    const { book_id, borrower_id } = req.body;
+
+    // Calculate the due date (e.g., 14 days from the borrow date)
+    const borrow_date = new Date();
+    const due_date = new Date();
+    due_date.setDate(borrow_date.getDate() + 14); // Assuming a 14-day borrowing period
+
+    try {
+        const { rows } = await pool.query(
+            'INSERT INTO borrowings (book_id, borrower_id, borrow_date, due_date) VALUES ($1, $2, $3, $4) RETURNING *',
+            [book_id, borrower_id, borrow_date, due_date]
+        );
+
+        res.status(201).json(rows[0]);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+// Return a book
+app.put('/borrowings/:id', async (req, res) => {
+    const borrowingId = req.params.id;
+
+    try {
+        const { rows } = await pool.query('DELETE FROM borrowings WHERE id=$1 RETURNING *', [borrowingId]);
+
+        if (rows.length === 0) {
+            res.status(404).json({ error: 'Borrowing not found' });
+        } else {
+            res.json({ message: 'Book returned successfully' });
+        }
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+// List books currently borrowed by a borrower
+app.get('/borrowings/borrower/:borrowerId', async (req, res) => {
+    const borrowerId = req.params.borrowerId;
+
+    try {
+        const { rows } = await pool.query(
+            'SELECT b.*, br.borrow_date, br.due_date FROM books b JOIN borrowings br ON b.id = br.book_id WHERE br.borrower_id=$1',
+            [borrowerId]
+        );
+
+        res.json(rows);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+// List overdue books
+app.get('/borrowings/overdue', async (req, res) => {
+    const currentDate = new Date();
+
+    try {
+        const { rows } = await pool.query(
+            'SELECT b.*, br.borrow_date, br.due_date FROM books b JOIN borrowings br ON b.id = br.book_id WHERE br.due_date < $1',
+            [currentDate]
+        );
+
+        res.json(rows);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
 
 
 app.listen(3000, () => {

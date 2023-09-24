@@ -10,6 +10,7 @@ app.get('/', (req, res) => {
     res.send('Welcome to the Library Management System');
   });
   
+  // Book Endpoints
   app.get('/books', async (req, res) => {
     try {
       const { rows } = await pool.query('SELECT * FROM books');
@@ -96,9 +97,18 @@ app.post('/books', async (req, res) => {
   });
 
 
+//Borrowers Endpoints 
 
-  
-  
+// List all borrowers
+    app.get('/borrowers', async (req, res) => {
+        try {
+          const { rows } = await pool.query('SELECT * FROM borrowers');
+          res.json(rows);
+        } catch (err) {
+          console.error(err);
+          res.status(500).json({ error: 'Internal server error' });
+        }
+      });
   
   app.listen(3000, () => {
     console.log('Server is running on port 3000');

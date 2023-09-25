@@ -174,10 +174,9 @@ app.delete('/borrowers/:id', async (req, res) => {
 app.post('/borrowings', async (req, res) => {
     const { book_id, borrower_id } = req.body;
 
-    // Calculate the due date (e.g., 14 days from the borrow date)
     const borrow_date = new Date();
     const due_date = new Date();
-    due_date.setDate(borrow_date.getDate() + 14); // Assuming a 14-day borrowing period
+    due_date.setDate(borrow_date.getDate() + 14); // here we assuming a 14-day borrowing period
 
     try {
         const { rows } = await pool.query(

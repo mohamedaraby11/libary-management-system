@@ -59,7 +59,11 @@ Borrowing Process
         Description: Get a list of overdue books. 
 
 How to Run and Test Api
-To use this API, you can make HTTP requests to the provided endpoints using a tool like Postman or by integrating the API into your application From Your Broweser.
+# - npm install 
+# - node app.js
+# - To use this API, you can make HTTP requests to the provided endpoints using a tool like Postman or by integrating the API into your application From Your Broweser.
+# - or by using a d Docker File (Don't forget to put your env variable [environment:POSTGRES_USER:  - POSTGRES_PASSWORD: - POSTGRES_DB: - DATABASE_URL])
+
 
 For example, to add a new book, you can send a POST request to /books with the book details in the request body.
 
